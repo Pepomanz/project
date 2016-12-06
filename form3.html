@@ -1,0 +1,147 @@
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+
+<form action="AddHeader.php" method="get">
+	<div id="e_event"> 
+	</div>
+	<div id = "EnableEvent">Event Name: 
+		<script>
+		document.write('<input type="text" name="event_name">')
+		</script>
+	</div>
+	<p>Column Header</p>
+
+ <div id="headerTitle">
+   Column 1 :<input name="Column1" type="text" ><br>
+   Column 2 :<input name="Column2" type="text" ><br>
+ </div>
+
+ <input name="name" class="name required" type="button" onclick="AddColumn()" value="Add" /> <br><br>
+ <input size=10 type="hidden" id="maxrow" name = "i" value = "1" ><br>
+  <input size=10 type="hidden" id="event_id" name = "event_id" value = "1" ><br>
+   <input type="submit">   
+</form>
+
+
+
+<br>
+    <div id="table"> Data: 
+        <script>
+        document.write('<table id="myTable"><tr><th>AppID/StudentID</th><th>Column 1</th><th>Column 2</th></tr><tr><td></td><td></td><td></td><td></td></tr></table>')
+        </script> 
+    </div> 
+
+<script>
+
+loadevent();
+function loadevent(){
+    var xmlhttp = new XMLHttpRequest();
+    var url = "http://127.0.0.1:80/project/getEvents.php";
+    xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            Get_exist_event(xmlhttp.responseText);
+        }
+    }
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+function loadEventHeader(eveID){
+    var xmlhttp = new XMLHttpRequest();
+    var url = "http://127.0.0.1:80/project/getEventHeader.php/?eventID="+eveID;
+    xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            Get_exist_eventHeader(xmlhttp.responseText);
+        }
+    }
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+function Get_exist_event(response) {
+    var i;
+    var out = "EventName:<select id=\"EventName\" name=\"EventName\" class=\"required-entry\" onchange=\"javascript: EnableEvent(this.options[this.selectedIndex].value ); loadEventHeader(this.options[this.selectedIndex].value);\"><option value=\"Select EventName\">Select EventName</option>";
+    var arr = JSON.parse(response);
+    for(i = 0; i < arr.length; i++) {
+        out += '<option value="'+arr[i].EventID+'">'+ arr[i].EventName+'</option>';
+    }
+    out += "</select><\/script>"; 
+    document.getElementById("e_event").innerHTML = out;
+}
+var pNR=2;
+function Get_exist_eventHeader(response) {
+    var i;
+    var out="";
+    var arr = JSON.parse(response);
+    for(i = 0; i < arr.length; i++) {
+    	pNR=i+1;
+        out +=  'Column '+pNR+':<input name=\"Column'+pNR+'\" type=\"text\" value =\"'+arr[i].HeaderTitle+'\"><br>';
+    }
+    out += "<input type =\"hidden\" id=\"col\" name=\"column\" value=\""+pNR+"\"></select>"; 
+    document.getElementById("maxrow").value = pNR;
+    document.getElementById("headerTitle").innerHTML = out;
+}
+
+/*function AddColumn(){
+    var index = document.getElementById("col").value;
+	var out="";
+	out += "Column"+index+":<input type=\"text\" name=\"Column "+ index+"\"><br>";
+	//index += 1;
+	//out = 1;
+	out += "<button onclick =\"AddColumn();\"> Add more fields</button><br><br>"
+	document.getElementById("addHeader").innerHTML = out;
+}*/
+
+var fields = 0;
+var err = 0;
+
+function AddColumn() {
+	pNR ++;
+	document.getElementById("maxrow").value = pNR; //send value to php
+    var firstInput,out, errorText;
+    var text = document.getElementById("headerTitle");//headerTitle addHeader
+    if (fields != 40) {
+    	var para = document.createElement("P");                       // Create a <p> element
+		var t = document.createTextNode("Column "+pNR+" :");       // Create a text node
+		text.appendChild(t);
+        firstInput  = document.createElement("input");
+        firstInput.type  = "text";
+        firstInput.name  = "Column" + pNR;
+        text.appendChild(firstInput);
+        text.appendChild(document.createElement("br"));
+        fields += 1;
+    } else {
+        if (err == 0) {
+            text.appendChild(document.createElement("br"))
+            text.appendChild(document.createTextNode("Maximum 40 "));
+            err = 1;
+        }
+        document.form.add.disabled = true;
+    }
+}
+
+function EnableEvent(event)
+{
+	var out = "Event Name: <input type=\"text\" name=\"event_name\"";
+	if(event != "Select EventName")
+	{
+		out += " disabled>";
+	}
+	else out += ">";
+	document.getElementById("EnableEvent").innerHTML = out;
+}
+
+/*i=0;
+var out=""
+function change_column(){
+	var k;
+    out += "Column"+i+" <input type=\"text\" name=\"column"+i"\">";
+i++
+document.getElementById("column").innerHTML = out;
+}*/
+
+</script>
+</body>
+</html>
