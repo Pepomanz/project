@@ -1,7 +1,7 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-
+$event_id=(int)$_GET["EventName"];
 /*$event_id=$_GET["EventName"];
 $event_name=$_GET["event_name"];
 if($event_name=="")
@@ -20,8 +20,14 @@ for($i=1;$i<=$count;$i++)
 {
  $col = "Column".$i;	
  $column = $_GET[$col];
- echo $column ."<br>";
- //$sql = "INSERT INTO eventheader  WHERE StudentID = "'$column'" ";
+ echo $column ."<br/>";
+ $sql = "INSERT INTO eventheader  (HeaderTitle,HeaderNo) VALUES ('$column','$i') WHERE EventID = '$event_id' ";
+ if ($con->query($sql) === TRUE) {
+    echo "New record created successfully";
+} else {
+    echo "Error: " . $sql . "<br/>" . $con->error;
+}
+
 }
 
 
